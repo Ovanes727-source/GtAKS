@@ -1,0 +1,7 @@
+workflows:
+  android-build:
+    name: Android — Gradle build
+    scripts:
+      - ./gradlew clean assembleRelease --no-daemon
+    artifacts:
+      - app/build/outputs/**/*.apk
