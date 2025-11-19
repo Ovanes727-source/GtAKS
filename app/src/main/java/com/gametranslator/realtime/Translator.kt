@@ -1,4 +1,3 @@
-
 package com.gametranslator.realtime
 
 import android.content.Context
@@ -55,7 +54,7 @@ class Translator(context: Context) {
                 onResult(translatedText)
             }
             ?.addOnFailureListener { exception ->
-                onResult("Ошибка перевода: ${'$'}{exception.message ?: "неизвестная ошибка"}")
+                onResult("Ошибка перевода: ${exception.message ?: "неизвестная ошибка"}")
             }
     }
 
