@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace
+'com.gametranslator.realtime'
     compileSdk 34
 
     defaultConfig {
