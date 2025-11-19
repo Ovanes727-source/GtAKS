@@ -1,12 +1,10 @@
-
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    namespace
-'com.gametranslator.realtime'
+    namespace 'com.gametranslator.realtime'
     compileSdk 34
 
     defaultConfig {
@@ -28,8 +26,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    kotlinOptions { jvmTarget = '1.8' }
-    buildFeatures { viewBinding true }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
