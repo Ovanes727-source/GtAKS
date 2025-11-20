@@ -1,18 +1,15 @@
 workflows:
-  android-game-translator:
-    name: Game Translator Build
+  android-game-translator:  # Это правильное имя workflow
+    name: Android Game Translator
     environment:
-      android_signing: null
+      groups: []
     scripts:
-      - name: Set gradlew executable
-        script: |
-          chmod +x ./gradlew
+      - name: Set execute permission for gradlew
+        script: chmod +x ./gradlew
       - name: Build Debug APK
-        script: |
-          ./gradlew clean assembleDebug --no-daemon
+        script: ./gradlew clean assembleDebug
       - name: Build Release AAB
-        script: |
-          ./gradlew clean bundleRelease --no-daemon
+        script: ./gradlew clean bundleRelease
     artifacts:
       - app/build/outputs/apk/debug/app-debug.apk
       - app/build/outputs/bundle/release/app-release.aab
