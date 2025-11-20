@@ -1,14 +1,13 @@
 workflows:
-  android-build:
-    name: Android Game Translator Build
+  android-game-translator:
+    name: Game Translator Build
+    environment:
+      android_signing: null
     scripts:
-      - name: Build APK and AAB
+      - name: Build with Gradle
         script: |
-          ./gradlew clean assembleDebug bundleRelease --no-daemon
+          # Используем системный Gradle вместо gradlew
+          gradle clean assembleDebug bundleRelease --no-daemon
     artifacts:
-      - app/build/outputs/**/*.apk
-      - app/build/outputs/**/*.aab
-    publishing:
-      email:
-        recipients:
-          - your-email@example.com
+      - app/build/outputs/apk/debug/app-debug.apk
+      - app/build/outputs/bundle/release/app-release.aab
