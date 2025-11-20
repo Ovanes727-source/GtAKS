@@ -2,13 +2,15 @@ workflows:
   android-development:
     name: Android Development Build
     environment:
-      android:
-        build_tools: "34.0.0"
+      groups:
+        - android_config
+      vars:
+        BUILD_TOOLS: "34.0.0"
     scripts:
       - name: Build Android APK
         script: |
           chmod +x ./gradlew
-          ls -la ./gradlew  # Проверим права
+          ls -la ./gradlew
           ./gradlew clean assembleDebug
     artifacts:
       - app/build/outputs/**/*.apk
