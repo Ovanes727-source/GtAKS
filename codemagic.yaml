@@ -1,8 +1,18 @@
 workflows:
-  simple-android:
-    name: Simple Android Build
+  android-fix:
+    name: Android Build Fix
+    environment:
+      android:
+        build_tools: "34.0.0"
     scripts:
-      - name: Build APK
-        script: ./gradlew assembleDebug
+      - name: Fix permissions and build
+        script: |
+          chmod +x ./gradlew
+          ./gradlew clean assembleDebug
     artifacts:
       - app/build/outputs/apk/debug/app-debug.apk
+      - app/build/outputs/apk/release/app-release.apk
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
