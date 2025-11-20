@@ -3,8 +3,9 @@ package com.gametranslator.realtime
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
+import android.media.projection.MediaProjectionManager  // ДОБАВЛЕН ИМПОРТ
 import android.os.Bundle
-import android.os.IBinder  // ДОБАВЛЕН ИМПОРТ
+import android.os.IBinder
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -25,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     private var captureService: ScreenCaptureService? = null
     private var isServiceBound = false
 
-    // ДОБАВЛЕНА ИНИЦИАЛИЗАЦИЯ ttsManager
     private val ttsManager: TTSManager by lazy { TTSManager(this.applicationContext) }
 
     private val connection = object : ServiceConnection {
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                     translatedText?.let { text ->
                         runOnUiThread {
                             translationText.text = text
-                            ttsManager.speak(text)  // Теперь ttsManager доступен
+                            ttsManager.speak(text)
                         }
                     }
                 }
@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        ttsManager.destroy()  // Теперь ttsManager доступен
+        ttsManager.destroy()
     }
 
     private fun startTranslation() {
