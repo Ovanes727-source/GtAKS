@@ -4,10 +4,19 @@ workflows:
     environment:
       android_signing: null
     scripts:
-      - name: Build with Gradle
+      - name: Set gradlew executable
         script: |
-          # Используем системный Gradle вместо gradlew
-          gradle clean assembleDebug bundleRelease --no-daemon
+          chmod +x ./gradlew
+      - name: Build Debug APK
+        script: |
+          ./gradlew clean assembleDebug --no-daemon
+      - name: Build Release AAB
+        script: |
+          ./gradlew clean bundleRelease --no-daemon
     artifacts:
       - app/build/outputs/apk/debug/app-debug.apk
       - app/build/outputs/bundle/release/app-release.aab
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
