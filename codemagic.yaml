@@ -1,16 +1,8 @@
 workflows:
-  android-universal:
-    name: Android Universal APK
-    environment:
-      android:
-        build_tools: "34.0.0"
+  simple-android:
+    name: Simple Android Build
     scripts:
-      - name: Build Debug APK
-        script: |
-          ./gradlew clean assembleDebug
+      - name: Build APK
+        script: ./gradlew assembleDebug
     artifacts:
       - app/build/outputs/apk/debug/app-debug.apk
-    publishing:
-      email:
-        recipients:
-          - your-email@example.com
