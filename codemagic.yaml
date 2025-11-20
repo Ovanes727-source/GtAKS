@@ -1,19 +1,25 @@
 workflows:
-  android-development:
-    name: Android Development Build
+  android-build:
+    name: Android Game Translator Build
     environment:
       groups:
-        - android_config
+        - keystore_credentials # Добавьте позже для подписи
       vars:
-        BUILD_TOOLS: "34.0.0"
+        PACKAGE_NAME: "com.gametranslator.realtime"
     scripts:
-      - name: Build Android APK
+      - name: Set up debug keystore
         script: |
-          chmod +x ./gradlew
-          ls -la ./gradlew
-          ./gradlew clean assembleDebug
+          echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.jks
+          keytool -list -v -keystore /tmp/keystore.jks -storepass $CM_KEYSTORE_PASSWORD -keypass $CM_KEY_PASSWORD -alias $CM_KEY_ALIAS
+      - name: Build debug APK
+        script: |
+          ./gradlew clean assembleDebug --no-daemon
+      - name: Build release AAB
+        script: |
+          ./gradlew clean bundleRelease --no-daemon
     artifacts:
       - app/build/outputs/**/*.apk
+      - app/build/outputs/**/*.aab
     publishing:
       email:
         recipients:
