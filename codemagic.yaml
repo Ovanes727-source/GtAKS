@@ -1,17 +1,17 @@
 workflows:
-  android-fix:
-    name: Android Build Fix
+  android-development:
+    name: Android Development Build
     environment:
       android:
         build_tools: "34.0.0"
     scripts:
-      - name: Fix permissions and build
+      - name: Build Android APK
         script: |
           chmod +x ./gradlew
+          ls -la ./gradlew  # Проверим права
           ./gradlew clean assembleDebug
     artifacts:
-      - app/build/outputs/apk/debug/app-debug.apk
-      - app/build/outputs/apk/release/app-release.apk
+      - app/build/outputs/**/*.apk
     publishing:
       email:
         recipients:
