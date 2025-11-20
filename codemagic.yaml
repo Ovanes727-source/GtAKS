@@ -3,20 +3,23 @@ workflows:
     name: Android Game Translator Build
     environment:
       groups:
-        - keystore_credentials # Добавьте позже для подписи
+        - keystore_credentials # Оставляем, но используем только для релиза
       vars:
         PACKAGE_NAME: "com.gametranslator.realtime"
     scripts:
-      - name: Set up debug keystore
-        script: |
-          echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.jks
-          keytool -list -v -keystore /tmp/keystore.jks -storepass $CM_KEYSTORE_PASSWORD -keypass $CM_KEY_PASSWORD -alias $CM_KEY_ALIAS
       - name: Build debug APK
         script: |
           ./gradlew clean assembleDebug --no-daemon
       - name: Build release AAB
         script: |
-          ./gradlew clean bundleRelease --no-daemon
+          # Собираем релизный AAB только если заданы переменные для подписи
+          if [ -n "$CM_KEYSTORE" ] && [ -n "$CM_KEYSTORE_PASSWORD" ] && [ -n "$CM_KEY_PASSWORD" ] && [ -n "$CM_KEY_ALIAS" ]; then
+            echo "Building release AAB with keystore"
+            ./gradlew clean bundleRelease --no-daemon
+          else
+            echo "Keystore credentials not provided, building unsigned release AAB"
+            ./gradlew clean bundleRelease --no-daemon -Pandroid.injected.signing.store.file=$CM_KEYSTORE -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
+          fi
     artifacts:
       - app/build/outputs/**/*.apk
       - app/build/outputs/**/*.aab
