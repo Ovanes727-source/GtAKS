@@ -1,4 +1,3 @@
-
 package com.gametranslator.realtime
 
 import android.content.Context
