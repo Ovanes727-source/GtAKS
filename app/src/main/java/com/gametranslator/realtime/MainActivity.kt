@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.IBinder  // ДОБАВЛЕН ИМПОРТ
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -12,9 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +24,9 @@ class MainActivity : AppCompatActivity() {
     private var translationJob: Job? = null
     private var captureService: ScreenCaptureService? = null
     private var isServiceBound = false
+
+    // ДОБАВЛЕНА ИНИЦИАЛИЗАЦИЯ ttsManager
+    private val ttsManager: TTSManager by lazy { TTSManager(this.applicationContext) }
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -60,6 +61,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    private val screenCaptureLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val intent = Intent(this, ScreenCaptureService::class.java).apply {
+                putExtra("resultCode", result.resultCode)
+                putExtra("data", result.data)
+            }
+            ContextCompat.startForegroundService(this, intent)
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        } else {
+            Toast.makeText(this, "Разрешение на захват экрана не предоставлено", Toast.LENGTH_LONG).show()
+            stopTranslation()
+        }
+    }
+
     private val translationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
@@ -70,8 +87,7 @@ class MainActivity : AppCompatActivity() {
                     translatedText?.let { text ->
                         runOnUiThread {
                             translationText.text = text
-                            // Автоматическое озвучивание перевода
-                            ttsManager.speak(text)
+                            ttsManager.speak(text)  // Теперь ttsManager доступен
                         }
                     }
                 }
@@ -93,7 +109,6 @@ class MainActivity : AppCompatActivity() {
         translationText = findViewById(R.id.translation_text)
         statusText = findViewById(R.id.status_text)
 
-        // Восстановление состояния при повороте экрана
         if (savedInstanceState != null) {
             isTranslating = savedInstanceState.getBoolean("isTranslating", false)
         }
@@ -110,7 +125,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Регистрация приемника трансляций
         val filter = IntentFilter().apply {
             addAction(ScreenCaptureService.ACTION_TRANSLATION_RESULT)
             addAction(ScreenCaptureService.ACTION_CAPTURE_ERROR)
@@ -130,13 +144,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Не останавливаем перевод при сворачивании, только обновляем UI
         updateUI()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // Останавливаем только при полном закрытии приложения
         stopTranslation()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(translationReceiver)
         try {
@@ -147,6 +159,7 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        ttsManager.destroy()  // Теперь ttsManager доступен
     }
 
     private fun startTranslation() {
@@ -154,11 +167,8 @@ class MainActivity : AppCompatActivity() {
         
         isTranslating = true
         
-        val intent = Intent(this, ScreenCaptureService::class.java)
-        bindService(intent, connection, Context.BIND_AUTO_CREATE)
-        
-        // Запускаем сервис в foreground для стабильной работы
-        ContextCompat.startForegroundService(this, intent)
+        val mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
         
         updateUI()
         Toast.makeText(this, "Перевод запущен", Toast.LENGTH_SHORT).show()
