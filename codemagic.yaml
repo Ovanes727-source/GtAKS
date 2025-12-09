@@ -1,8 +1,10 @@
 workflows:
-  android-build:
-    name: Build APK
+  android-debug:
+    name: Android Build
     scripts:
-      - name: Build App
-        script: gradle clean assembleDebug
+      - name: Build with system Gradle
+        script: |
+          # Просто используем системный Gradle
+          gradle assembleDebug --stacktrace
     artifacts:
       - app/build/outputs/apk/debug/*.apk
